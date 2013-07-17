@@ -47,11 +47,16 @@ var loadChecks = function(checksfile) {
 };
 
 var fetchWebpageContents = function(url, outfile) {
+    if(!fs.existsSync(outfile)) {
+        fs.writeFileSync(outfile, "");
+    };
     rest.get(url).on('complete', function(result) {   
           
         // save html to the file
-        fs.writeFile(outfile,result);                                        
-            
+        fs.writeFileSync(outfile,result);                                        
+	var checkJson = checkHtmlFile(WEBFILE_DEFAULT, program.checks);
+        var outJson = JSON.stringify(checkJson, null, 4);
+	console.log(outJson);
         // or we can see the results in the screen                                                                        
 	//console.log(result);                
     });
@@ -82,12 +87,11 @@ if(require.main == module) {
         .parse(process.argv);
     if (program.url) {
 	fetchWebpageContents(program.url, WEBFILE_DEFAULT);
-	var checkJson = checkHtmlFile(WEBFILE_DEFAULT, program.checks);
     } else {
 	var checkJson = checkHtmlFile(program.file, program.checks);
+	var outJson = JSON.stringify(checkJson, null, 4);
+	console.log(outJson);
     };
-    var outJson = JSON.stringify(checkJson, null, 4);
-    console.log(outJson);
 } else {
     exports.checkHtmlFile = checkHtmlFile;
 }
